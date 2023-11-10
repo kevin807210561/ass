@@ -27,8 +27,10 @@ content_video_fps_str="$(ffprobe -select_streams v -of default=noprint_wrappers=
     exit 1
 }
 
-video_size="1280x720"
-author_img_size="640:360"
+video_width=1280
+video_height=720
+author_img_width=$((video_width/2))
+author_img_height=$((video_height/2))
 voice="zh-CN-YunxiNeural"
 rate="+20%"
 shopt -s expand_aliases
@@ -47,7 +49,7 @@ title_duration=$(ffprobe -select_streams a -of default=noprint_wrappers=1:nokey=
     exit 1
 }
 ffmpeg \
-    -f lavfi -i "color=c=black:s=${video_size}:r=${content_video_fps}" \
+    -f lavfi -i "color=c=black:s=${video_width}x${video_height}:r=${content_video_fps}" \
     -i title.mp3 \
     -vf "subtitles=title.srt:force_style='Alignment=10,Fontsize=50'" -t "$title_duration" -y title.mp4 || {
     log ERROR "gen title.mp4 failed"
@@ -64,10 +66,10 @@ author_duration=$(ffprobe -select_streams a -of default=noprint_wrappers=1:nokey
     exit 1
 }
 ffmpeg \
-    -f lavfi -i "color=c=black:s=${video_size}:r=${content_video_fps}" \
+    -f lavfi -i "color=c=black:s=${video_width}x${video_height}:r=${content_video_fps}" \
     -i "$author_img" \
     -i author.mp3 \
-    -filter_complex "[1:v:0]scale=${author_img_size}[resized_img],[0:v:0][resized_img]overlay=x=W/2-w/2:y=H/2-h/2" -t "$author_duration" -y author.mp4 || {
+    -filter_complex "[1:v:0]scale=${author_img_width}:${author_img_height}[resized_img],[0:v:0][resized_img]overlay=x=W/2-w/2:y=H/2-h/2" -t "$author_duration" -y author.mp4 || {
     log ERROR "gen author.mp4 failed"
     exit 1
 }
@@ -75,11 +77,11 @@ ffmpeg \
 # gen content
 cat "$content_file" >content_file_cp.txt
 echo "。对此你有什么看法，欢迎评论区留言。" >>content_file_cp.txt
-# edge-tts-zh -f content_file_cp.txt --write-media content.mp3 || {
-#     log ERROR "edge-tts for content failed"
-#     exit 1
-# }
-# whisper content.mp3
+edge-tts-zh -f content_file_cp.txt --write-media content.mp3 || {
+    log ERROR "edge-tts for content failed"
+    exit 1
+}
+whisper content.mp3
 content_duration=$(ffprobe -select_streams a -of default=noprint_wrappers=1:nokey=1 -show_entries stream=duration content.mp3) || {
     log ERROR "get content.mp3 duration failed"
     exit 1
@@ -88,7 +90,7 @@ ffmpeg \
     -i content.mp3 \
     -an -i "$content_video" \
     -i content.srt \
-    -vf "subtitles=content.srt" -t "$content_duration" -y content.mp4 || {
+    -vf "scale=${video_width}:${video_height},subtitles=content.srt" -t "$content_duration" -y content.mp4 || {
     log ERROR "gen content.mp4 failed"
     exit 1
 }
