@@ -85,7 +85,7 @@ edge-tts-zh -f content_file_cp.txt --write-media content.mp3 || {
     log ERROR "edge-tts for content failed"
     exit 1
 }
-whisper content.mp3
+whisper content.mp3 --model large
 content_duration=$(ffprobe -select_streams a -of default=noprint_wrappers=1:nokey=1 -show_entries stream=duration content.mp3) || {
     log ERROR "get content.mp3 duration failed"
     exit 1
