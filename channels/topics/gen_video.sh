@@ -10,15 +10,19 @@ title=$1 && [[ -n "$title" ]] || {
     log ERROR "must provide title"
     exit 1
 }
-author_img=$2 && [[ -n "$author_img" ]] || {
-    log ERROR "must provide author image"
+author=$2 && answer_url="${author:0:12}" && [[ -n "$author" ]] || {
+    log ERROR "must provide author"
     exit 1
 }
-content_file=$3 && [[ -n "$content_file" ]] || {
+answer_url=$3 && answer_url="${answer_url:0:58}" && [[ -n "$answer_url" ]] || {
+    log ERROR "must provide answer url"
+    exit 1
+}
+content_file=$4 && [[ -n "$content_file" ]] || {
     log ERROR "must provide content file"
     exit 1
 }
-content_video=$4 && [[ -n "$content_video" ]] || {
+content_video=$5 && [[ -n "$content_video" ]] || {
     log ERROR "must provide content video"
     exit 1
 }
@@ -29,8 +33,8 @@ content_video_fps_str="$(ffprobe -select_streams v -of default=noprint_wrappers=
 
 video_width=1280
 video_height=720
-author_img_width=$((video_width/2))
-author_img_height=$((video_height/2))
+zhihu_img_width=800
+zhihu_img_height=240
 voice="zh-CN-YunxiNeural"
 rate="+20%"
 shopt -s expand_aliases
@@ -67,9 +71,9 @@ author_duration=$(ffprobe -select_streams a -of default=noprint_wrappers=1:nokey
 }
 ffmpeg \
     -f lavfi -i "color=c=black:s=${video_width}x${video_height}:r=${content_video_fps}" \
-    -i "$author_img" \
+    -i "${SCRIPT_DIR}/zhihu_banner.png" \
     -i author.mp3 \
-    -filter_complex "[1:v:0]scale=${author_img_width}:${author_img_height}[resized_img],[0:v:0][resized_img]overlay=x=W/2-w/2:y=H/2-h/2" -t "$author_duration" -y author.mp4 || {
+    -filter_complex "[1:v:0]scale=${zhihu_img_width}:${zhihu_img_height}[resized_img],[0:v:0][resized_img]overlay=x=W/2-w/2:y=H/2-h/2,drawtext=text='${author/:/\:}':fontfile='${SCRIPT_DIR}/QingNiaoHuaGuangJianMeiHei-2.ttf':fontsize=40:x=w/2+${zhihu_img_height}/2-tw/2:y=h/2-th,drawtext=text='${answer_url/:/\:}':x=w/2+${zhihu_img_height}/2-tw/2:y=h/2+${zhihu_img_height}/10" -t "$author_duration" -y author.mp4 || {
     log ERROR "gen author.mp4 failed"
     exit 1
 }
