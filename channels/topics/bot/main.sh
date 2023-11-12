@@ -20,7 +20,10 @@ answer_info="$(mktemp)"
     log ERROR "get zhihu answer info failed"
     exit 1
 }
-jq -er '.content' "$answer_info" >content.txt
+jq -er '.content' "$answer_info" >content.txt || {
+    log ERROR "get zhihu answer content failed"
+    exit 1
+}
 "${SCRIPT_DIR}/gen_video.sh" \
     "$(jq -er '.title' "$answer_info")" \
     "$(jq -er '.author' "$answer_info")" \

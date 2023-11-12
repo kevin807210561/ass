@@ -85,7 +85,10 @@ edge-tts-zh -f content_file_cp.txt --write-media content.mp3 || {
     log ERROR "edge-tts for content failed"
     exit 1
 }
-whisper content.mp3 --model large
+whisper --model large -f srt content.mp3 || {
+    log ERROR "gen content.srt failed"
+    exit 1
+}
 content_duration=$(ffprobe -select_streams a -of default=noprint_wrappers=1:nokey=1 -show_entries stream=duration content.mp3) || {
     log ERROR "get content.mp3 duration failed"
     exit 1
@@ -106,5 +109,8 @@ ffmpeg \
     -i content.mp4 \
     -i "${SCRIPT_DIR}/Yawarakana hikari.opus-intro.wav" \
     -stream_loop -1 -i "${SCRIPT_DIR}/Yawarakana hikari.opus-loop.wav" \
-    -filter_complex '[0:v:0][1:v:0][2:v:0]concat=n=3:v=1:a=0[outv];[0:a:0][1:a:0][2:a:0]concat=n=3:v=0:a=1[main],[3:a:0][4:a:0]concat=n=2:v=0:a=1[bgm],[main][bgm]amix=duration=2:weights=2 0.1[outa]' \
-    -map [outv] -map [outa] -shortest -y result.mp4
+    -filter_complex '[0:v:0]fade[titlev],[1:v:0]fade[authorv],[2:v:0]fade[contentv],[titlev][authorv][contentv]concat=n=3:v=1:a=0[outv];[0:a:0][1:a:0][2:a:0]concat=n=3:v=0:a=1[main],[3:a:0][4:a:0]concat=n=2:v=0:a=1[bgm],[main][bgm]amix=duration=2:weights=2 0.1[outa]' \
+    -map [outv] -map [outa] -shortest -y result.mp4 || {
+    log ERROR "gen result.mp4 failed"
+    exit 1
+}
