@@ -11,3 +11,5 @@ RUN wget -O /tmp/YaHei.Consolas.1.12.zip https://storage.googleapis.com/google-c
     && chmod 644 /usr/share/fonts/consolas/YaHei.Consolas.1.12.ttf \
     && cd /usr/share/fonts/consolas \
     && mkfontscale && mkfontdir && fc-cache -fv
+
+ENTRYPOINT [ "/bin/bash" ]
