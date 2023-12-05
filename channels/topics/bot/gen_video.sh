@@ -39,7 +39,7 @@ voice="zh-CN-YunxiNeural"
 rate="+20%"
 shopt -s expand_aliases
 alias edge-tts-zh="edge-tts -v \$voice --rate \$rate"
-whisper_model="${WHISPER_MODEL:-large}"
+whisper_model="${WHISPER_MODEL:-small}"
 
 # gen title
 echo "1" >title.srt
@@ -104,7 +104,7 @@ ffmpeg \
     -i content.mp3 \
     -an -i "$content_video" \
     -i content.srt \
-    -vf "scale=${video_width}:${video_height},subtitles=content.srt" -t "$content_duration" -y content.mp4 || {
+    -vf "scale=${video_width}:${video_height},subtitles=content.srt:force_style='Fontsize=20'" -t "$content_duration" -y content.mp4 || {
     log ERROR "gen content.mp4 failed"
     exit 1
 }
