@@ -13,22 +13,22 @@ jobs:
       id: changes
       with:
         filters: |
-          dockerfile:
-            - 'channels/topics/bot/Dockerfile'
-    - if: steps.changes.outputs.dockerfile == 'true'
+          runner:
+            - 'channels/topics/runner/**'
+    - if: steps.changes.outputs.runner == 'true'
       name: Log in to Docker Hub
       uses: docker/login-action@v3.0.0
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
-    - if: steps.changes.outputs.dockerfile == 'true'
+    - if: steps.changes.outputs.runner == 'true'
       id: git-short-sha
       run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-    - if: steps.changes.outputs.dockerfile == 'true'
+    - if: steps.changes.outputs.runner == 'true'
       name: Build and push Docker image
       uses: docker/build-push-action@v5.1.0
       with:
-        context: channels/topics/bot
-        file: channels/topics/bot/Dockerfile
+        context: channels/topics/runner
+        file: channels/topics/runner/Dockerfile
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/topics-bot-runner:latest,${{ secrets.DOCKERHUB_USERNAME }}/topics-bot-runner:${{ steps.git-short-sha.outputs.sha_short }}
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/topics-runner:latest,${{ secrets.DOCKERHUB_USERNAME }}/topics-runner:${{ steps.git-short-sha.outputs.sha_short }}
