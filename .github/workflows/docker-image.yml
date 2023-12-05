@@ -1,0 +1,18 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+
+  build-topcis-bot-runner:
+
+    if: contains(github.event.commits.*.modified.*, 'channels/topics/bot/Dockerfile')
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the Docker image
+      run: cd channels/topics/bot && docker build . --file Dockerfile --tag topcis-bot-runner
