@@ -8,7 +8,7 @@ jobs:
 
   build-topcis-bot-runner:
 
-    if: contains(github.event.commits.*.modified.*, 'channels/topics/bot/Dockerfile')
+    # if: contains(github.event.commits.*.modified.*, 'channels/topics/bot/Dockerfile')
 
     runs-on: ubuntu-latest
 
