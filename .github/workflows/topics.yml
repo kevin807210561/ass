@@ -1,0 +1,19 @@
+name: topics channel
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-runner:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: dorny/paths-filter@v2.11.1
+      with:
+        filters: |
+          dockerfile:
+            - 'channels/topics/bot/Dockerfile'
+    - if: steps.changes.outputs.dockerfile == 'true'
+      run: |
+        cd channels/topics/bot && docker build . --file Dockerfile --tag topcis-bot-runner
