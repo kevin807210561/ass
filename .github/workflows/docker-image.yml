@@ -15,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - env:
-        modified: ${{ github.event.commits }}
+        modified: github.event.commits
       run: |
         echo "$modified"
     - name: Build the Docker image
