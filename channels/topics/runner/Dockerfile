@@ -10,5 +10,7 @@ RUN wget -O /tmp/YaHei.Consolas.1.12.zip https://storage.googleapis.com/google-c
     && chmod 644 /usr/share/fonts/consolas/YaHei.Consolas.1.12.ttf \
     && cd /usr/share/fonts/consolas \
     && mkfontscale && mkfontdir && fc-cache -fv
+RUN wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/local/bin/yt-dlp \
+    && chmod a+rx /usr/local/bin/yt-dlp
 
 ENTRYPOINT [ "/bin/bash" ]

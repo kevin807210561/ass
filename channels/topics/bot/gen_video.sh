@@ -26,6 +26,13 @@ content_video=$5 && [[ -n "$content_video" ]] || {
     log ERROR "must provide content video"
     exit 1
 }
+if [[ ! -f "$content_video" ]]; then
+    content_video=$(yt-dlp "$content_video" -o "content.%(ext)s" --print filename --no-simulate) || {
+        log ERROR "download content video failed"
+        exit 1
+    }
+fi
+
 content_video_fps_str="$(ffprobe -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=r_frame_rate "$content_video")" && content_video_fps=$((content_video_fps_str)) || {
     log ERROR "failed to get fps of the content video"
     exit 1
@@ -46,10 +53,9 @@ echo "1" >title.srt
 echo "00:00:00,000 --> 10:00:00,000" >>title.srt
 title_to_split="${title}"
 title_split_len="12"
-while [[ -n "${title_to_split}" ]]
-do
-  cat <<<"${title_to_split:0:${title_split_len}}" >>title.srt
-  title_to_split="${title_to_split:${title_split_len}}"
+while [[ -n "${title_to_split}" ]]; do
+    cat <<<"${title_to_split:0:${title_split_len}}" >>title.srt
+    title_to_split="${title_to_split:${title_split_len}}"
 done
 edge-tts-zh -t "今日话题，${title}。" --write-media title.mp3 || {
     log ERROR "edge-tts for title failed"
