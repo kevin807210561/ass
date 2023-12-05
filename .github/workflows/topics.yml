@@ -28,4 +28,4 @@ jobs:
         context: channels/topics/bot
         file: channels/topics/bot/Dockerfile
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/topcis-bot-runner
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/topics-bot-runner
