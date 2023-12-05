@@ -39,11 +39,18 @@ voice="zh-CN-YunxiNeural"
 rate="+20%"
 shopt -s expand_aliases
 alias edge-tts-zh="edge-tts -v \$voice --rate \$rate"
+whisper_model="${WHISPER_MODEL:-large}"
 
 # gen title
 echo "1" >title.srt
 echo "00:00:00,000 --> 10:00:00,000" >>title.srt
-cat <<<"$title" >>title.srt
+title_to_split="${title}"
+title_split_len="12"
+while [[ -n "${title_to_split}" ]]
+do
+  cat <<<"${title_to_split:0:${title_split_len}}" >>title.srt
+  title_to_split="${title_to_split:${title_split_len}}"
+done
 edge-tts-zh -t "今日话题，${title}。" --write-media title.mp3 || {
     log ERROR "edge-tts for title failed"
     exit 1
@@ -73,7 +80,7 @@ ffmpeg \
     -f lavfi -i "color=c=black:s=${video_width}x${video_height}:r=${content_video_fps}" \
     -i "${SCRIPT_DIR}/zhihu_banner.png" \
     -i author.mp3 \
-    -filter_complex "[1:v:0]scale=${zhihu_img_width}:${zhihu_img_height}[resized_img],[0:v:0][resized_img]overlay=x=W/2-w/2:y=H/2-h/2,drawtext=text='${author/:/\:}':fontfile='${SCRIPT_DIR}/QingNiaoHuaGuangJianMeiHei-2.ttf':fontsize=40:x=w/2+${zhihu_img_height}/2-tw/2:y=h/2-th,drawtext=text='${answer_url/:/\:}':x=w/2+${zhihu_img_height}/2-tw/2:y=h/2+${zhihu_img_height}/10" -t "$author_duration" -y author.mp4 || {
+    -filter_complex "[1:v:0]scale=${zhihu_img_width}:${zhihu_img_height}[resized_img],[0:v:0][resized_img]overlay=x=W/2-w/2:y=H/2-h/2,drawtext=text='${author/:/\\:}':fontfile='${SCRIPT_DIR}/QingNiaoHuaGuangJianMeiHei-2.ttf':fontsize=40:x=w/2+${zhihu_img_height}/2-tw/2:y=h/2-th,drawtext=text='${answer_url/:/\\:}':x=w/2+${zhihu_img_height}/2-tw/2:y=h/2+${zhihu_img_height}/10" -t "$author_duration" -y author.mp4 || {
     log ERROR "gen author.mp4 failed"
     exit 1
 }
@@ -85,7 +92,7 @@ edge-tts-zh -f content_file_cp.txt --write-media content.mp3 || {
     log ERROR "edge-tts for content failed"
     exit 1
 }
-whisper --model large -f srt content.mp3 || {
+whisper --model "$whisper_model" --fp16 False -f srt content.mp3 || {
     log ERROR "gen content.srt failed"
     exit 1
 }
