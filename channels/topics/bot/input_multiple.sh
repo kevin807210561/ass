@@ -41,7 +41,9 @@ done 3<"$input_file" || {
     log ERROR "read input file failed"
     exit 1
 }
-mv -f "$output_file" "$input_file" || {
-    log ERROR "write results failed"
-    exit 1
-}
+if [[ -f "$output_file" ]]; then
+    mv -f "$output_file" "$input_file" || {
+        log ERROR "write results failed"
+        exit 1
+    }
+fi
