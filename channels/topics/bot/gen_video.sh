@@ -108,7 +108,7 @@ ffmpeg \
     -i content.mp3 \
     -an -i "$content_video" \
     -i content.srt \
-    -vf "scale=${video_width}:${video_height},subtitles=content.srt:force_style='Fontsize=30'" -t "$content_duration" -y content.mp4 || {
+    -vf "scale=${video_width}:${video_height},subtitles=content.srt:force_style='Fontsize=20'" -t "$content_duration" -y content.mp4 || {
     log ERROR "gen content.mp4 failed"
     exit 1
 }
