@@ -3,6 +3,8 @@ name: topics channel
 on:
   push:
     branches: [ "main" ]
+    paths:
+    - "channels/topics/**"
 
 jobs:
   build-runner:
@@ -76,13 +78,15 @@ jobs:
             - 'channels/topics/output/videos.txt'
     - if: steps.changes.outputs.output == 'true'
       run: |
-        before_md5="$(md5sum channels/topics/output/videos.txt)"
-        docker run --rm -v "$(pwd)/channels/topics/output:/work" --workdir /work ${{ secrets.DOCKERHUB_USERNAME }}/topics-bot --input-file /work/videos.txt
-        after_md5="$(md5sum channels/topics/output/videos.txt)"
-        [[ "$before_md5" -eq "$after_md5" ]] || {
-          git add channels/topics/output/videos.txt
-          git commit -m "generated"
-          git push
+        before_md5="$(md5sum channels/topics/output/videos.txt)" || exit 1
+        docker run --rm -v "$(pwd)/channels/topics/output:/work" --workdir /work ${{ secrets.DOCKERHUB_USERNAME }}/topics-bot --input-file /work/videos.txt || exit 1
+        after_md5="$(md5sum channels/topics/output/videos.txt)" || exit 1
+        [[ "$before_md5" == "$after_md5" ]] || {
+          git config user.name github-actions || exit 1
+          git config user.email github-actions@github.com || exit 1
+          git add channels/topics/output/videos.txt || exit 1
+          git commit -m "generated" || exit 1
+          git push || exit 1
         }
     - if: steps.changes.outputs.output == 'true'
       uses: actions/upload-artifact@v3.1.3
