@@ -76,5 +76,16 @@ jobs:
             - 'channels/topics/output/videos.txt'
     - if: steps.changes.outputs.output == 'true'
       run: |
-        docker run --rm -v "$(pwd):/work" ${{ secrets.DOCKERHUB_USERNAME }}/topics-bot --input-file /work/channels/topics/output/videos.txt
-    
+        before_md5="$(md5sum channels/topics/output/videos.txt)"
+        docker run --rm -v "$(pwd)/channels/topics/output:/work" --workdir /work ${{ secrets.DOCKERHUB_USERNAME }}/topics-bot --input-file /work/videos.txt
+        after_md5="$(md5sum channels/topics/output/videos.txt)"
+        [[ "$before_md5" -eq "$after_md5" ]] || {
+          git add channels/topics/output/videos.txt
+          git commit -m "generated"
+          git push
+        }
+    - if: steps.changes.outputs.output == 'true'
+      uses: actions/upload-artifact@v3.1.3
+      with:
+        path: channels/topics/output/result.mp4
+        
