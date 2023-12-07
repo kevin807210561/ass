@@ -43,7 +43,7 @@ video_height=720
 zhihu_img_width=800
 zhihu_img_height=240
 shopt -s expand_aliases
-alias edge-tts-zh="edge-tts -v zh-CN-YunxiNeural --rate +20% --volume +100%"
+alias edge-tts-zh="edge-tts -v zh-CN-YunxiNeural --rate +20%"
 whisper_model="${WHISPER_MODEL:-small}"
 
 # gen title
@@ -108,7 +108,7 @@ ffmpeg \
     -i content.mp3 \
     -an -i "$content_video" \
     -i content.srt \
-    -vf "scale=${video_width}:${video_height},subtitles=content.srt:force_style='Fontsize=20'" -t "$content_duration" -y content.mp4 || {
+    -vf "scale=${video_width}:${video_height},subtitles=content.srt:force_style='Fontsize=30'" -t "$content_duration" -y content.mp4 || {
     log ERROR "gen content.mp4 failed"
     exit 1
 }
@@ -120,7 +120,7 @@ ffmpeg \
     -i content.mp4 \
     -i "${SCRIPT_DIR}/Yawarakana hikari.opus-intro.wav" \
     -stream_loop -1 -i "${SCRIPT_DIR}/Yawarakana hikari.opus-loop.wav" \
-    -filter_complex '[0:v:0]fade[titlev],[1:v:0]fade[authorv],[2:v:0]fade[contentv],[titlev][authorv][contentv]concat=n=3:v=1:a=0[outv];[0:a:0][1:a:0][2:a:0]concat=n=3:v=0:a=1[main],[3:a:0][4:a:0]concat=n=2:v=0:a=1[bgm],[main][bgm]amix=duration=2:weights=1 0.1[outa]' \
+    -filter_complex '[0:v:0]fade[titlev],[1:v:0]fade[authorv],[2:v:0]fade[contentv],[titlev][authorv][contentv]concat=n=3:v=1:a=0[outv];[0:a:0][1:a:0][2:a:0]concat=n=3:v=0:a=1[main],[3:a:0][4:a:0]concat=n=2:v=0:a=1[bgm],[main][bgm]amix=duration=2:weights=2 0.1[outa]' \
     -map [outv] -map [outa] -shortest -y result.mp4 || {
     log ERROR "gen result.mp4 failed"
     exit 1
