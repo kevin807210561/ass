@@ -62,3 +62,19 @@ jobs:
         file: channels/topics/bot/Dockerfile
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/topics-bot:latest,${{ secrets.DOCKERHUB_USERNAME }}/topics-bot:${{ steps.git-short-sha.outputs.sha_short }}
+  
+  generate-video:
+    needs: build-bot
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4.1.1
+    - uses: dorny/paths-filter@v2.11.1
+      id: changes
+      with:
+        filters: |
+          output:
+            - 'channels/topics/output/videos.txt'
+    - if: steps.changes.outputs.output == 'true'
+      run: |
+        docker run --rm -v "$(pwd):/work" ${{ secrets.DOCKERHUB_USERNAME }}/topics-bot --input-file /work/channels/topics/output/videos.txt
+    

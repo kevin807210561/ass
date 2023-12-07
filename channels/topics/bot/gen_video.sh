@@ -33,7 +33,7 @@ if [[ ! -f "$content_video" ]]; then
     }
 fi
 
-content_video_fps_str="$(ffprobe -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=r_frame_rate "$content_video")" && content_video_fps=$((content_video_fps_str)) || {
+content_video_fps="$(ffprobe -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=r_frame_rate "$content_video")" || {
     log ERROR "failed to get fps of the content video"
     exit 1
 }
@@ -42,10 +42,8 @@ video_width=1280
 video_height=720
 zhihu_img_width=800
 zhihu_img_height=240
-voice="zh-CN-YunxiNeural"
-rate="+20%"
 shopt -s expand_aliases
-alias edge-tts-zh="edge-tts -v \$voice --rate \$rate"
+alias edge-tts-zh="edge-tts -v zh-CN-YunxiNeural --rate +20% --volume +100%"
 whisper_model="${WHISPER_MODEL:-small}"
 
 # gen title
@@ -122,7 +120,7 @@ ffmpeg \
     -i content.mp4 \
     -i "${SCRIPT_DIR}/Yawarakana hikari.opus-intro.wav" \
     -stream_loop -1 -i "${SCRIPT_DIR}/Yawarakana hikari.opus-loop.wav" \
-    -filter_complex '[0:v:0]fade[titlev],[1:v:0]fade[authorv],[2:v:0]fade[contentv],[titlev][authorv][contentv]concat=n=3:v=1:a=0[outv];[0:a:0][1:a:0][2:a:0]concat=n=3:v=0:a=1[main],[3:a:0][4:a:0]concat=n=2:v=0:a=1[bgm],[main][bgm]amix=duration=2:weights=2 0.1[outa]' \
+    -filter_complex '[0:v:0]fade[titlev],[1:v:0]fade[authorv],[2:v:0]fade[contentv],[titlev][authorv][contentv]concat=n=3:v=1:a=0[outv];[0:a:0][1:a:0][2:a:0]concat=n=3:v=0:a=1[main],[3:a:0][4:a:0]concat=n=2:v=0:a=1[bgm],[main][bgm]amix=duration=2:weights=1 0.1[outa]' \
     -map [outv] -map [outa] -shortest -y result.mp4 || {
     log ERROR "gen result.mp4 failed"
     exit 1
