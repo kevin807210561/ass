@@ -42,6 +42,8 @@ video_width=1280
 video_height=720
 zhihu_img_width=800
 zhihu_img_height=240
+v_cover_width=1281
+v_cover_height=1708
 shopt -s expand_aliases
 alias edge-tts-zh="edge-tts -v zh-CN-YunxiNeural --rate +20%"
 whisper_model="${WHISPER_MODEL:-small}"
@@ -68,6 +70,14 @@ ffmpeg \
     -i title.mp3 \
     -vf "subtitles=title.srt:force_style='Alignment=10,Fontsize=50'" -t "$title_duration" -y title.mp4 || {
     log ERROR "gen title.mp4 failed"
+    exit 1
+}
+ffmpeg \
+    -f lavfi -i "color=c=black:s=${v_cover_width}x${v_cover_height}" \
+    -i title.mp4 \
+    -filter_complex "[0:v:0][1:v:0]overlay=x=W/2-w/2:y=H/2-h/2" \
+    -frames:v 1 -q:v 2 -y v_cover.jpg || {
+    log ERROR "gen v_cover.jpg failed"
     exit 1
 }
 
