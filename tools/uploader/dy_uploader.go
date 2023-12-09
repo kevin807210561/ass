@@ -16,7 +16,7 @@ type DyUploader struct {
 	credential string
 	video      string
 	title      string
-	labels     []string
+	tags       []string
 	vCover     string
 	hCover     string
 
@@ -28,7 +28,7 @@ type DyUploaderOpts struct {
 	Credential string
 	Video      string
 	Title      string
-	Labels     []string
+	Tags       []string
 	VCover     string
 	HCover     string
 }
@@ -66,7 +66,7 @@ func NewDyUploader(opts DyUploaderOpts) (*DyUploader, error) {
 		credential:                opts.Credential,
 		video:                     opts.Video,
 		title:                     opts.Title,
-		labels:                    opts.Labels,
+		tags:                      opts.Tags,
 		vCover:                    opts.VCover,
 		hCover:                    opts.HCover,
 		waitDurationBeforePublish: 10 * time.Second,
@@ -151,8 +151,8 @@ func (du *DyUploader) uploadVideo() error {
 
 func (du *DyUploader) setVideoInfo() error {
 	desc := du.title
-	if len(du.labels) > 0 {
-		desc = desc + " #" + strings.Join(du.labels, " #") + " "
+	if len(du.tags) > 0 {
+		desc = desc + " #" + strings.Join(du.tags, " #") + " "
 	}
 	if err := du.page.Locator(".zone-container").PressSequentially(desc, playwright.LocatorPressSequentiallyOptions{Delay: func(f float64) *float64 {
 		return &f
