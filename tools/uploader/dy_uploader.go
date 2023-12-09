@@ -152,7 +152,7 @@ func (du *DyUploader) uploadVideo() error {
 func (du *DyUploader) setVideoInfo() error {
 	desc := du.title
 	if len(du.labels) > 0 {
-		desc = desc + "#" + strings.Join(du.labels, " #") + " "
+		desc = desc + " #" + strings.Join(du.labels, " #") + " "
 	}
 	if err := du.page.Locator(".zone-container").PressSequentially(desc, playwright.LocatorPressSequentiallyOptions{Delay: func(f float64) *float64 {
 		return &f
