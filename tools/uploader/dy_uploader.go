@@ -119,7 +119,6 @@ func (du *DyUploader) Upload() error {
 		return fmt.Errorf("failed to publish: %v", err)
 	}
 	// stop
-	time.Sleep(10 * time.Minute)
 	if err = browser.Close(); err != nil {
 		return fmt.Errorf("could not close browser: %v", err)
 	}
@@ -153,9 +152,11 @@ func (du *DyUploader) uploadVideo() error {
 func (du *DyUploader) setVideoInfo() error {
 	desc := du.title
 	if len(du.labels) > 0 {
-		desc = desc + " #" + strings.Join(du.labels, " #") + " "
+		desc = desc + "#" + strings.Join(du.labels, " #") + " "
 	}
-	if err := du.page.Locator(".zone-container").Fill(desc); err != nil {
+	if err := du.page.Locator(".zone-container").PressSequentially(desc, playwright.LocatorPressSequentiallyOptions{Delay: func(f float64) *float64 {
+		return &f
+	}(50)}); err != nil {
 		return fmt.Errorf("could not fill desc: %v", err)
 	}
 	log.Printf("填写简介：%s", desc)
@@ -226,7 +227,7 @@ func (du *DyUploader) publish() error {
 		return &b
 	}(true)}).Click(); err != nil {
 		return fmt.Errorf("could not click 发布: %v", err)
-	} 
+	}
 	if err := du.page.WaitForURL("https://creator.douyin.com/creator-micro/content/manage"); err != nil {
 		return fmt.Errorf("could not wait for 发布完成: %v", err)
 	}
