@@ -22,6 +22,8 @@ type DyUploader struct {
 
 	page                      playwright.Page
 	waitDurationBeforePublish time.Duration
+
+	test bool
 }
 
 type DyUploaderOpts struct {
@@ -31,6 +33,7 @@ type DyUploaderOpts struct {
 	Tags       []string
 	VCover     string
 	HCover     string
+	Test       *bool
 }
 
 func NewDyUploader(opts DyUploaderOpts) (*DyUploader, error) {
@@ -70,6 +73,13 @@ func NewDyUploader(opts DyUploaderOpts) (*DyUploader, error) {
 		vCover:                    opts.VCover,
 		hCover:                    opts.HCover,
 		waitDurationBeforePublish: 10 * time.Second,
+		test: func() bool {
+			if opts.Test != nil {
+				return *opts.Test
+			} else {
+				return false
+			}
+		}(),
 	}, nil
 }
 
@@ -80,17 +90,16 @@ func (du *DyUploader) Upload() error {
 		return fmt.Errorf("could not start playwright: %v", err)
 	}
 	browser, err := pw.Chromium.Launch(playwright.BrowserTypeLaunchOptions{
-		Headless: func() *bool { // todo
-			ret := false
-			return &ret
-		}(),
+		Headless: func(b bool) *bool {
+			return &b
+		}(!du.test),
 	})
 	if err != nil {
 		return fmt.Errorf("could not launch browser: %v", err)
 	}
 	context, err := browser.NewContext(playwright.BrowserNewContextOptions{
 		StorageStatePath: &du.credential,
-		Permissions:      []string{"geolocation"}, // todo
+		Permissions:      []string{"geolocation"},
 	})
 	if err != nil {
 		return fmt.Errorf("could not create context: %v", err)
@@ -220,6 +229,10 @@ func (du *DyUploader) notAllowDownload() error {
 }
 
 func (du *DyUploader) publish() error {
+	if du.test {
+		time.Sleep(10 * time.Minute)
+		return nil
+	}
 	if du.waitDurationBeforePublish > 0 {
 		time.Sleep(du.waitDurationBeforePublish)
 	}
