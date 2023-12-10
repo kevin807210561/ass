@@ -79,7 +79,7 @@ jobs:
     - if: steps.changes.outputs.output == 'true'
       run: |
         before_md5="$(md5sum channels/topics/output/videos.txt)" || exit 1
-        docker run --rm -v "$(pwd)/channels/topics/output:/work" --workdir /work -e WHISPER_MODEL=large ${{ secrets.DOCKERHUB_USERNAME }}/topics-bot --input-file /work/videos.txt || exit 1
+        docker run --rm -v "$(pwd)/channels/topics/output:/work" --workdir /work -e WHISPER_MODEL=medium ${{ secrets.DOCKERHUB_USERNAME }}/topics-bot --input-file /work/videos.txt || exit 1
         after_md5="$(md5sum channels/topics/output/videos.txt)" || exit 1
         [[ "$before_md5" == "$after_md5" ]] || {
           git config user.name github-actions || exit 1
