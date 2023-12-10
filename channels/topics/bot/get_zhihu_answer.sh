@@ -26,17 +26,23 @@ content="$(xq -x //p "$answer_html")" && [[ -n "$content" ]] || {
     log ERROR "get content failed"
     exit 1
 }
+keywords="$(xq -x '//head/meta[@name="keywords"]/@content' "$answer_html")" || {
+    log ERROR "get keywords failed"
+    exit 1
+}
 
 jq -n \
     --arg url "$url" \
     --arg title "$title" \
     --arg author "$author" \
     --arg content "$content" \
+    --arg keywords "$keywords" \
     '{
     url: $url,
     title: $title,
     author: $author,
-    content: $content
+    content: $content,
+    keywords: $keywords
 }' || {
     log ERROR "generate result json failed"
     exit 1

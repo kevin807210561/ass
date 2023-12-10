@@ -15,7 +15,7 @@ content_video=$2 && [[ -n "$content_video" ]] || {
     exit 1
 }
 
-answer_info="$(mktemp)"
+answer_info="answer.json"
 "${SCRIPT_DIR}/get_zhihu_answer.sh" "$url" >"$answer_info" || {
     log ERROR "get zhihu answer info failed"
     exit 1
