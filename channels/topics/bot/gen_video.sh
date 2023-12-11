@@ -27,7 +27,7 @@ content_video=$5 && [[ -n "$content_video" ]] || {
     exit 1
 }
 if [[ ! -f "$content_video" ]]; then
-    content_video=$(yt-dlp "$content_video" -o "content.%(ext)s" --print filename --no-simulate --force-overwrites) || {
+    content_video=$(yt-dlp "$content_video" -o "raw_content.%(ext)s" --print filename --no-simulate --force-overwrites) || {
         log ERROR "download content video failed"
         exit 1
     }
